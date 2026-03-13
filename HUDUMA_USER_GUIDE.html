@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Huduma Platform — User Guide</title>
+<style>
+  @media print {
+    body { margin: 0; padding: 20px; }
+    .page-break { page-break-before: always; }
+    .no-print { display: none; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #1a1a2e;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 30px;
+    background: #fff;
+  }
+  h1 {
+    color: #0d9488;
+    font-size: 2.2em;
+    border-bottom: 3px solid #0d9488;
+    padding-bottom: 12px;
+    margin-top: 0;
+  }
+  h2 {
+    color: #0f766e;
+    font-size: 1.6em;
+    margin-top: 40px;
+    border-bottom: 2px solid #e0f2f1;
+    padding-bottom: 8px;
+  }
+  h3 {
+    color: #115e59;
+    font-size: 1.2em;
+    margin-top: 24px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.95em;
+  }
+  th {
+    background: #0d9488;
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  tr:nth-child(even) { background: #f8fffe; }
+  tr:hover { background: #e0f2f1; }
+  .cover {
+    text-align: center;
+    padding: 80px 20px;
+    margin-bottom: 40px;
+  }
+  .cover h1 {
+    font-size: 2.8em;
+    border: none;
+    margin-bottom: 8px;
+  }
+  .cover .subtitle {
+    font-size: 1.3em;
+    color: #555;
+    margin-bottom: 30px;
+  }
+  .cover .meta {
+    color: #777;
+    font-size: 0.95em;
+    line-height: 2;
+  }
+  .toc {
+    background: #f8fffe;
+    border: 1px solid #d1fae5;
+    border-radius: 8px;
+    padding: 24px 32px;
+    margin: 30px 0;
+  }
+  .toc h2 { margin-top: 0; border: none; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 6px 0; }
+  .toc a { color: #0d9488; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .tip {
+    background: #f0fdfa;
+    border-left: 4px solid #0d9488;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .tip strong { color: #0d9488; }
+  .note {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .note strong { color: #d97706; }
+  .step-box {
+    background: #f8fffe;
+    border: 1px solid #d1fae5;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+  .step-num {
+    display: inline-block;
+    background: #0d9488;
+    color: white;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.85em;
+    margin-right: 8px;
+  }
+  code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    margin: 2px;
+  }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+  .badge-accepted { background: #d1fae5; color: #065f46; }
+  .badge-rejected { background: #fee2e2; color: #991b1b; }
+  .print-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #0d9488;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(13,148,136,0.3);
+    z-index: 100;
+  }
+  .print-btn:hover { background: #0f766e; }
+  footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 2px solid #e0f2f1;
+    text-align: center;
+    color: #888;
+    font-size: 0.9em;
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">Save as PDF</button>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <h1>Huduma Platform</h1>
+  <div class="subtitle">User Guide</div>
+  <p class="meta">
+    Multi-Category Service Marketplace for Kenya &amp; East Africa<br>
+    Version 1.0 &bull; July 2025<br>
+    Android &bull; iOS &bull; Web
+  </p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#intro">Introduction</a></li>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#auth">Authentication (Login &amp; OTP)</a></li>
+    <li><a href="#home">Home Screen</a></li>
+    <li><a href="#categories">Browsing Categories</a></li>
+    <li><a href="#listings">Viewing Listings</a></li>
+    <li><a href="#create-listing">Creating a Listing</a></li>
+    <li><a href="#apply">Applying to a Listing</a></li>
+    <li><a href="#applications">Managing Applications</a></li>
+    <li><a href="#messaging">Messaging</a></li>
+    <li><a href="#profile">Profile Management</a></li>
+    <li><a href="#notifications">Notifications</a></li>
+    <li><a href="#reviews">Reviews &amp; Ratings</a></li>
+    <li><a href="#categories-ref">Service Categories Reference</a></li>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+  </ol>
+</div>
+
+<div class="page-break"></div>
+
+<!-- 1. INTRODUCTION -->
+<h2 id="intro">1. Introduction</h2>
+
+<p>Huduma Platform is a multi-category service marketplace designed for Kenya and East Africa. It connects <strong>service seekers</strong> (people who need work done) with <strong>service providers</strong> (skilled professionals) across 19 service categories.</p>
+
+<h3>What You Can Do</h3>
+<table>
+  <tr><th>Feature</th><th>Description</th></tr>
+  <tr><td>Find Service Providers</td><td>Browse verified professionals for house help, plumbing, electrical work, tutoring, and more</td></tr>
+  <tr><td>Post Jobs</td><td>Create listings to hire someone for a specific task or ongoing work</td></tr>
+  <tr><td>Apply for Work</td><td>Service providers can browse and apply to available jobs</td></tr>
+  <tr><td>Communicate</td><td>Message service providers or clients directly through in-app chat</td></tr>
+  <tr><td>Review &amp; Rate</td><td>Leave reviews after a job is completed to help others decide</td></tr>
+</table>
+
+<h3>Who Is It For?</h3>
+<table>
+  <tr><th>User Type</th><th>Examples</th></tr>
+  <tr><td><strong>Service Seekers</strong></td><td>Homeowners, tenants, families, businesses looking to hire</td></tr>
+  <tr><td><strong>Service Providers</strong></td><td>House helps, plumbers, electricians, tutors, painters, mechanics, etc.</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 2. GETTING STARTED -->
+<h2 id="getting-started">2. Getting Started</h2>
+
+<h3>System Requirements</h3>
+<table>
+  <tr><th>Platform</th><th>Minimum Version</th></tr>
+  <tr><td>Android</td><td>Version 6.0 (Marshmallow) or higher</td></tr>
+  <tr><td>iOS</td><td>Version 13.0 or higher</td></tr>
+  <tr><td>Web</td><td>Any modern browser (Chrome, Safari, Firefox, Edge)</td></tr>
+</table>
+
+<h3>Installation</h3>
+<div class="step-box">
+  <p><span class="step-num">1</span> Download the Huduma Platform app from the Google Play Store or Apple App Store.</p>
+  <p><span class="step-num">2</span> Open the app after installation.</p>
+  <p><span class="step-num">3</span> You will be taken to the <strong>Onboarding</strong> screen.</p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- 3. AUTHENTICATION -->
+<h2 id="auth">3. Authentication (Login &amp; OTP)</h2>
+
+<p>Huduma Platform uses <strong>phone-number-based authentication</strong> with OTP (One-Time Password) verification via SMS. No password is required.</p>
+
+<h3>Step 1: Onboarding</h3>
+<p>When you first open the app, you will see a three-page introduction:</p>
+<div class="step-box">
+  <p><strong>Page 1 — Find Trusted Services:</strong> Learn about finding verified professionals near you.</p>
+  <p><strong>Page 2 — Housing Made Easy:</strong> Discover rental and housing options.</p>
+  <p><strong>Page 3 — Verified &amp; Reviewed:</strong> Understand how reviews and verification work.</p>
+</div>
+<p>Swipe left/right to navigate between pages, then tap:</p>
+<ul>
+  <li><strong>"Get Started"</strong> — To create a new account.</li>
+  <li><strong>"I already have an account"</strong> — To sign in.</li>
+</ul>
+
+<h3>Step 2: Enter Your Phone Number</h3>
+<div class="step-box">
+  <p><span class="step-num">1</span> Your country code defaults to <strong>Kenya (+254)</strong>.</p>
+  <p><span class="step-num">2</span> Enter your <strong>10-digit phone number</strong> (e.g., 0796XXXXXX).</p>
+  <p><span class="step-num">3</span> Tap <strong>"Continue"</strong>.</p>
+</div>
+
+<h3>Step 3: Verify OTP</h3>
+<div class="step-box">
+  <p><span class="step-num">1</span> A <strong>6-digit verification code</strong> will be sent to your phone via SMS.</p>
+  <p><span class="step-num">2</span> Enter the code in the input field.</p>
+  <p><span class="step-num">3</span> The code <strong>auto-submits</strong> when all 6 digits are entered.</p>
+</div>
+
+<div class="tip">
+  <strong>Tip:</strong> If you did not receive the code, wait for the 60-second timer to expire, then tap <strong>"Resend Code"</strong>. Ensure you have SMS reception.
+</div>
+
+<div class="note">
+  <strong>Note:</strong> If this is your first time, you may be asked to set up your profile before proceeding.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 4. HOME SCREEN -->
+<h2 id="home">4. Home Screen</h2>
+
+<p>The Home Screen is your main dashboard after logging in.</p>
+
+<h3>Screen Layout</h3>
+<table>
+  <tr><th>Section</th><th>Description</th></tr>
+  <tr><td>Greeting Header</td><td>Displays "Hello [Your Name]" with a personalized tagline</td></tr>
+  <tr><td>Notification Bell</td><td>Top-right icon with badge showing unread count</td></tr>
+  <tr><td>Search Bar</td><td>Tap to search for services, housing, or providers</td></tr>
+  <tr><td>Quick Actions</td><td>Three shortcut buttons for common tasks</td></tr>
+  <tr><td>Categories</td><td>Horizontal scrollable list of service categories</td></tr>
+  <tr><td>Recent Listings</td><td>Latest service listings posted on the platform</td></tr>
+</table>
+
+<h3>Quick Action Buttons</h3>
+<table>
+  <tr><th>Button</th><th>What It Does</th></tr>
+  <tr><td><strong>Post a Job</strong></td><td>Opens the Create Listing screen to post a new job</td></tr>
+  <tr><td><strong>Find Housing</strong></td><td>Filters listings to show rental/housing options</td></tr>
+  <tr><td><strong>Hire Pro</strong></td><td>Opens the full categories list to browse all services</td></tr>
+</table>
+
+<h3>Bottom Navigation Bar</h3>
+<table>
+  <tr><th>Tab</th><th>Description</th></tr>
+  <tr><td><strong>Home</strong></td><td>Main dashboard with listings and quick actions</td></tr>
+  <tr><td><strong>Categories</strong></td><td>Browse all 19 service categories</td></tr>
+  <tr><td><strong>Applications</strong></td><td>View jobs you've applied to</td></tr>
+  <tr><td><strong>Messages</strong></td><td>Your conversations with other users</td></tr>
+  <tr><td><strong>Profile</strong></td><td>Your profile and settings</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 5. BROWSING CATEGORIES -->
+<h2 id="categories">5. Browsing Categories</h2>
+
+<h3>How to Access</h3>
+<ul>
+  <li>Tap the <strong>Categories</strong> tab in the bottom navigation bar</li>
+  <li>Tap <strong>"See all"</strong> next to Categories on the Home Screen</li>
+  <li>Tap <strong>"Hire Pro"</strong> quick action button</li>
+</ul>
+
+<h3>Category Cards</h3>
+<p>Each category is displayed as an elevated card with:</p>
+<ul>
+  <li>A <strong>colored icon</strong> representing the service type</li>
+  <li>The <strong>category name</strong> (e.g., "Plumber", "Electrician")</li>
+  <li>A <strong>teal pill badge</strong> showing the number of active listings</li>
+</ul>
+<p>Tap any category card to view all listings in that category.</p>
+
+<div class="page-break"></div>
+
+<!-- 6. VIEWING LISTINGS -->
+<h2 id="listings">6. Viewing Listings</h2>
+
+<p>Tap any listing to open its detail view.</p>
+
+<h3>Listing Detail Screen</h3>
+<table>
+  <tr><th>Section</th><th>Details</th></tr>
+  <tr><td>Image Gallery</td><td>Swipeable images uploaded by the poster</td></tr>
+  <tr><td>Title</td><td>Job or service title</td></tr>
+  <tr><td>Category Badge</td><td>The category this listing belongs to</td></tr>
+  <tr><td>Budget</td><td>Minimum and maximum budget range in KES, plus period</td></tr>
+  <tr><td>Location</td><td>County or specific area</td></tr>
+  <tr><td>Engagement Type</td><td>One-time, ongoing, or contract</td></tr>
+  <tr><td>Description</td><td>Full description of the job or service needed</td></tr>
+  <tr><td>Provider Info</td><td>Name and profile of the poster</td></tr>
+  <tr><td>Apply Button</td><td>Button to submit your application</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 7. CREATING A LISTING -->
+<h2 id="create-listing">7. Creating a Listing</h2>
+
+<h3>How to Create a Listing</h3>
+<div class="step-box">
+  <p><span class="step-num">1</span> Tap <strong>"Post a Job"</strong> on the Home Screen.</p>
+  <p><span class="step-num">2</span> Fill in the listing form (see fields below).</p>
+  <p><span class="step-num">3</span> Tap <strong>"Create Listing"</strong> to publish.</p>
+  <p><span class="step-num">4</span> A success message appears and you return to the previous screen.</p>
+</div>
+
+<h3>Listing Form Fields</h3>
+<table>
+  <tr><th>Field</th><th>Required</th><th>Description</th></tr>
+  <tr><td>Listing Type</td><td>Yes</td><td>Choose "Hire Someone" or "Request Service"</td></tr>
+  <tr><td>Title</td><td>Yes</td><td>Descriptive title (minimum 10 characters)</td></tr>
+  <tr><td>Category</td><td>Yes</td><td>Select from the dropdown of 19 categories</td></tr>
+  <tr><td>Description</td><td>Yes</td><td>Detailed description (20–1,000 characters)</td></tr>
+  <tr><td>Budget Min</td><td>No</td><td>Minimum budget in KES</td></tr>
+  <tr><td>Budget Max</td><td>No</td><td>Maximum budget in KES</td></tr>
+  <tr><td>Budget Period</td><td>No</td><td>Monthly, weekly, daily, or one-time</td></tr>
+  <tr><td>Location</td><td>No</td><td>County or area where the work is needed</td></tr>
+  <tr><td>Engagement Type</td><td>No</td><td>One-time, ongoing, or contract</td></tr>
+</table>
+
+<div class="tip">
+  <strong>Tips for a Good Listing:</strong>
+  <ul>
+    <li>Use a clear, specific title (e.g., "Need experienced plumber for kitchen sink repair in Westlands").</li>
+    <li>Write a detailed description including scope of work, requirements, and timeline.</li>
+    <li>Set a realistic budget range to attract qualified providers.</li>
+    <li>Specify the location to help providers assess commute distance.</li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- 8. APPLYING TO A LISTING -->
+<h2 id="apply">8. Applying to a Listing</h2>
+
+<div class="step-box">
+  <p><span class="step-num">1</span> Open a listing and tap the <strong>"Apply"</strong> button.</p>
+  <p><span class="step-num">2</span> Fill in the application form:</p>
+</div>
+
+<table>
+  <tr><th>Field</th><th>Required</th><th>Description</th></tr>
+  <tr><td>Cover Message</td><td>No</td><td>Brief message to the poster (max 500 characters)</td></tr>
+  <tr><td>Proposed Rate</td><td>No</td><td>Your proposed rate in KES</td></tr>
+</table>
+
+<div class="step-box">
+  <p><span class="step-num">3</span> Tap <strong>"Submit Application"</strong> to send.</p>
+  <p><span class="step-num">4</span> A confirmation message appears.</p>
+</div>
+
+<div class="tip">
+  <strong>Tips:</strong> Write a personalized cover message highlighting your experience. Be responsive — check your messages after applying as the poster may reach out.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 9. MANAGING APPLICATIONS -->
+<h2 id="applications">9. Managing Applications</h2>
+
+<p>Tap the <strong>Applications</strong> tab in the bottom navigation bar to view all jobs you've applied to.</p>
+
+<h3>Application Statuses</h3>
+<table>
+  <tr><th>Status</th><th>Meaning</th></tr>
+  <tr><td><span class="badge badge-pending">Pending</span></td><td>Your application has been submitted and is awaiting review</td></tr>
+  <tr><td><span class="badge badge-accepted">Accepted</span></td><td>The poster has accepted your application</td></tr>
+  <tr><td><span class="badge badge-rejected">Rejected</span></td><td>The poster has declined your application</td></tr>
+  <tr><td><span class="badge" style="background:#e5e7eb; color:#374151;">Withdrawn</span></td><td>You have withdrawn your application</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 10. MESSAGING -->
+<h2 id="messaging">10. Messaging</h2>
+
+<h3>Starting a Conversation</h3>
+<p>Conversations are initiated when a poster responds to your application, you are accepted for a job, or a user contacts you about a listing.</p>
+
+<h3>Chat Features</h3>
+<table>
+  <tr><th>Feature</th><th>Description</th></tr>
+  <tr><td>Real-time messaging</td><td>Messages are delivered instantly via WebSocket</td></tr>
+  <tr><td>Message types</td><td>Text messages and file attachments</td></tr>
+  <tr><td>Read receipts</td><td>See when your message has been read</td></tr>
+  <tr><td>Mute</td><td>Mute conversations you don't want notifications from</td></tr>
+</table>
+
+<h3>How to Use Chat</h3>
+<div class="step-box">
+  <p><span class="step-num">1</span> Tap the <strong>Messages</strong> tab in the bottom navigation bar.</p>
+  <p><span class="step-num">2</span> Your conversations are listed with the most recent at the top.</p>
+  <p><span class="step-num">3</span> Tap a conversation to open it.</p>
+  <p><span class="step-num">4</span> Type your message and tap send.</p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- 11. PROFILE MANAGEMENT -->
+<h2 id="profile">11. Profile Management</h2>
+
+<h3>Viewing Your Profile</h3>
+<p>Tap the <strong>Profile</strong> tab in the bottom navigation bar.</p>
+
+<table>
+  <tr><th>Section</th><th>Details</th></tr>
+  <tr><td>Avatar</td><td>Your profile photo (or default icon)</td></tr>
+  <tr><td>Full Name</td><td>Your first and last name</td></tr>
+  <tr><td>Phone Number</td><td>Your registered phone number</td></tr>
+  <tr><td>Verification Badge</td><td>Shown if your identity is verified</td></tr>
+  <tr><td>Stats</td><td>Rating, number of reviews, and jobs completed</td></tr>
+  <tr><td>Bio</td><td>Your personal description</td></tr>
+  <tr><td>Location</td><td>Your primary location</td></tr>
+  <tr><td>Member Since</td><td>Date you joined the platform</td></tr>
+</table>
+
+<h3>Editing Your Profile</h3>
+<div class="step-box">
+  <p><span class="step-num">1</span> Tap the <strong>pencil icon</strong> (edit button) on the Profile screen.</p>
+  <p><span class="step-num">2</span> Update the fields below.</p>
+  <p><span class="step-num">3</span> Tap <strong>"Save Changes"</strong> to update.</p>
+</div>
+
+<table>
+  <tr><th>Field</th><th>Required</th><th>Description</th></tr>
+  <tr><td>First Name</td><td>Yes</td><td>Your first name</td></tr>
+  <tr><td>Last Name</td><td>Yes</td><td>Your last name</td></tr>
+  <tr><td>Display Name</td><td>No</td><td>A public display name</td></tr>
+  <tr><td>Gender</td><td>No</td><td>Male, Female, or Other</td></tr>
+  <tr><td>Bio</td><td>No</td><td>Short description about you (max 300 characters)</td></tr>
+</table>
+
+<h3>Additional Profile Actions</h3>
+<table>
+  <tr><th>Action</th><th>Description</th></tr>
+  <tr><td>Notifications</td><td>View and manage your notification preferences</td></tr>
+  <tr><td>Help &amp; Support</td><td>Access help resources and contact support</td></tr>
+  <tr><td>Privacy Policy</td><td>Read the platform's privacy policy</td></tr>
+  <tr><td>Logout</td><td>Sign out of your account</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 12. NOTIFICATIONS -->
+<h2 id="notifications">12. Notifications</h2>
+
+<p>Access notifications by tapping the <strong>bell icon</strong> on the Home Screen or from your Profile screen.</p>
+
+<table>
+  <tr><th>Notification Type</th><th>Description</th></tr>
+  <tr><td>Application Update</td><td>When someone applies to your listing or your application status changes</td></tr>
+  <tr><td>New Message</td><td>When you receive a new chat message</td></tr>
+  <tr><td>Review Received</td><td>When someone leaves a review on your profile</td></tr>
+  <tr><td>Listing Update</td><td>Changes to listings you're involved with</td></tr>
+  <tr><td>System</td><td>Platform announcements and updates</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 13. REVIEWS & RATINGS -->
+<h2 id="reviews">13. Reviews &amp; Ratings</h2>
+
+<h3>How Reviews Work</h3>
+<p>After a job is completed, both parties can leave reviews.</p>
+<table>
+  <tr><th>Component</th><th>Description</th></tr>
+  <tr><td>Rating</td><td>1 to 5 stars</td></tr>
+  <tr><td>Comment</td><td>Written feedback about the experience</td></tr>
+</table>
+
+<h3>Leaving a Review</h3>
+<div class="step-box">
+  <p><span class="step-num">1</span> Navigate to the completed listing.</p>
+  <p><span class="step-num">2</span> Tap the review option.</p>
+  <p><span class="step-num">3</span> Select a star rating (1–5).</p>
+  <p><span class="step-num">4</span> Write an optional comment.</p>
+  <p><span class="step-num">5</span> Submit your review.</p>
+</div>
+
+<div class="note">
+  <strong>Note:</strong> Reviews are permanent and cannot be edited or deleted. Please be honest and constructive.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 14. SERVICE CATEGORIES REFERENCE -->
+<h2 id="categories-ref">14. Service Categories Reference</h2>
+
+<table>
+  <tr><th>#</th><th>Category</th><th>Typical Services</th></tr>
+  <tr><td>1</td><td>House Help</td><td>Live-in/out domestic worker, household management</td></tr>
+  <tr><td>2</td><td>Babysitter / Nanny</td><td>Childcare, school pick-up, after-school care</td></tr>
+  <tr><td>3</td><td>Cleaning</td><td>Deep cleaning, regular cleaning, move-in/out cleaning</td></tr>
+  <tr><td>4</td><td>Electrician</td><td>Wiring, socket installation, circuit repairs</td></tr>
+  <tr><td>5</td><td>Plumber</td><td>Pipe repair, tap installation, drainage</td></tr>
+  <tr><td>6</td><td>Carpenter</td><td>Furniture making, door fitting, cabinet work</td></tr>
+  <tr><td>7</td><td>Painter</td><td>Interior/exterior painting, wallpaper</td></tr>
+  <tr><td>8</td><td>Mason</td><td>Concrete work, bricklaying, building construction</td></tr>
+  <tr><td>9</td><td>Gardener / Landscaper</td><td>Lawn care, landscaping, tree trimming</td></tr>
+  <tr><td>10</td><td>Mechanic</td><td>Engine repair, servicing, bodywork</td></tr>
+  <tr><td>11</td><td>Tutor</td><td>Math, science, languages, exam preparation</td></tr>
+  <tr><td>12</td><td>Catering / Chef</td><td>Event catering, personal chef, meal prep</td></tr>
+  <tr><td>13</td><td>Laundry</td><td>Washing, ironing, dry cleaning</td></tr>
+  <tr><td>14</td><td>Security Guard</td><td>Day/night security, event security</td></tr>
+  <tr><td>15</td><td>Driver</td><td>Personal driver, delivery, chauffeur</td></tr>
+  <tr><td>16</td><td>Mover</td><td>House moving, office relocation, packing</td></tr>
+  <tr><td>17</td><td>Tailor / Seamstress</td><td>Alterations, custom clothing, repairs</td></tr>
+  <tr><td>18</td><td>Beautician / Barber</td><td>Haircuts, styling, beauty treatments</td></tr>
+  <tr><td>19</td><td>General Handyman</td><td>Multi-skill repairs and maintenance</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 15. TROUBLESHOOTING -->
+<h2 id="troubleshooting">15. Troubleshooting</h2>
+
+<table>
+  <tr><th>Problem</th><th>Solution</th></tr>
+  <tr><td>OTP not received</td><td>Wait 60 seconds and tap "Resend Code". Check that your phone number is correct. Ensure you have SMS reception.</td></tr>
+  <tr><td>App won't load</td><td>Check your internet connection. Try closing and reopening the app.</td></tr>
+  <tr><td>Cannot submit application</td><td>Ensure you are logged in. Check that the listing is still active.</td></tr>
+  <tr><td>Profile not updating</td><td>Ensure all required fields (First Name, Last Name) are filled. Check your internet connection.</td></tr>
+  <tr><td>Messages not sending</td><td>Check your internet connection. The app uses real-time WebSocket — a stable connection is required.</td></tr>
+  <tr><td>Listing not appearing</td><td>New listings may take a moment to appear. Pull down to refresh the listings page.</td></tr>
+</table>
+
+<div class="tip">
+  <strong>Need More Help?</strong> Use the <strong>Help &amp; Support</strong> option in your Profile screen to contact the support team.
+</div>
+
+<div class="page-break"></div>
+
+<!-- SYSTEM OVERVIEW (for admins) -->
+<h2>System Architecture Overview</h2>
+
+<table>
+  <tr><th>Component</th><th>Technology</th><th>Purpose</th></tr>
+  <tr><td>Mobile App</td><td>Flutter (Dart)</td><td>Cross-platform user interface</td></tr>
+  <tr><td>Backend API</td><td>NestJS (TypeScript)</td><td>Business logic, authentication, data management</td></tr>
+  <tr><td>Database</td><td>PostgreSQL (Neon)</td><td>Persistent data storage</td></tr>
+  <tr><td>Cache</td><td>Redis (Upstash)</td><td>Session management, OTP storage</td></tr>
+  <tr><td>Authentication</td><td>JWT + OTP via SMS</td><td>Secure phone-based login</td></tr>
+  <tr><td>Real-time</td><td>WebSocket (Socket.IO)</td><td>Instant messaging</td></tr>
+  <tr><td>SMS Provider</td><td>Africa's Talking</td><td>OTP delivery</td></tr>
+</table>
+
+<h3>Key API Endpoints</h3>
+<table>
+  <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+  <tr><td><code>/auth/otp/request</code></td><td>POST</td><td>Request OTP for phone number</td></tr>
+  <tr><td><code>/auth/otp/verify</code></td><td>POST</td><td>Verify OTP and get JWT token</td></tr>
+  <tr><td><code>/auth/refresh</code></td><td>POST</td><td>Refresh expired JWT token</td></tr>
+  <tr><td><code>/profiles</code></td><td>GET/PUT</td><td>View or update profile</td></tr>
+  <tr><td><code>/categories</code></td><td>GET</td><td>List all service categories</td></tr>
+  <tr><td><code>/listings</code></td><td>GET/POST</td><td>Browse or create listings</td></tr>
+  <tr><td><code>/applications</code></td><td>GET/POST</td><td>View or submit applications</td></tr>
+  <tr><td><code>/reviews</code></td><td>GET/POST</td><td>View or submit reviews</td></tr>
+  <tr><td><code>/chat/conversations</code></td><td>GET</td><td>List conversations</td></tr>
+  <tr><td><code>/notifications</code></td><td>GET</td><td>View notifications</td></tr>
+</table>
+
+<footer>
+  <p>&copy; 2025 Huduma Platform. All rights reserved.</p>
+  <p>Multi-Category Service Marketplace for Kenya &amp; East Africa</p>
+</footer>
+
+</body>
+</html>
