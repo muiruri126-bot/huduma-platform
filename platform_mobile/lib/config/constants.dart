@@ -1,6 +1,6 @@
 class ApiConstants {
-  static const String baseUrl = 'http://localhost:3000/api/v1';
-  static const String baseUrlAndroid = 'http://10.0.2.2:3000/api/v1'; // Android emulator
+  static const String baseUrl = 'https://huduma-production.up.railway.app/api/v1';
+  static const String baseUrlAndroid = 'https://huduma-production.up.railway.app/api/v1';
 
   // Auth
   static const String requestOtp = '/auth/otp/request';
