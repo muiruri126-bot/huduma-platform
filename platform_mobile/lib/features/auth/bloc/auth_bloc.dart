@@ -40,9 +40,10 @@ class AuthLoading extends AuthState {}
 
 class AuthOtpSent extends AuthState {
   final String phone;
-  AuthOtpSent(this.phone);
+  final String? otp;
+  AuthOtpSent(this.phone, {this.otp});
   @override
-  List<Object?> get props => [phone];
+  List<Object?> get props => [phone, otp];
 }
 
 class AuthAuthenticated extends AuthState {
@@ -104,8 +105,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      await _repository.requestOtp(event.phone);
-      emit(AuthOtpSent(event.phone));
+      final otp = await _repository.requestOtp(event.phone);
+      emit(AuthOtpSent(event.phone, otp: otp));
     } catch (e) {
       emit(AuthError(e.toString()));
     }

@@ -11,9 +11,10 @@ class AuthRepository {
 
   AuthRepository(this._api, this._storage);
 
-  Future<void> requestOtp(String phone) async {
+  Future<String?> requestOtp(String phone) async {
     try {
-      await _api.dio.post(ApiConstants.requestOtp, data: {'phone': phone});
+      final response = await _api.dio.post(ApiConstants.requestOtp, data: {'phone': phone});
+      return response.data?['otp']?.toString();
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

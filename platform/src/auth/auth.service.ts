@@ -25,21 +25,17 @@ export class AuthService {
       expiresAt: Date.now() + expirySeconds * 1000,
     });
 
-    // In production: send OTP via Africa's Talking SMS or WhatsApp
-    // For development, log it
-    if (this.config.get('NODE_ENV') === 'development') {
-      console.log(`\n========================================`);
-      console.log(`  OTP for ${dto.phone}: ${otp}`);
-      console.log(`========================================\n`);
-    }
+    console.log(`\n========================================`);
+    console.log(`  OTP for ${dto.phone}: ${otp}`);
+    console.log(`========================================\n`);
 
-    // TODO: Integrate Africa's Talking SMS service
-    // await this.smsService.send(dto.phone, `Your verification code is: ${otp}`);
+    // TODO: Integrate Africa's Talking SMS service for real SMS delivery
+    // await this.smsService.send(dto.phone, `Your Huduma verification code is: ${otp}`);
 
     return {
       message: 'OTP sent successfully',
       expiresIn: expirySeconds,
-      ...(this.config.get('NODE_ENV') === 'development' && { otp }),
+      otp, // Returned until SMS provider is integrated
     };
   }
 

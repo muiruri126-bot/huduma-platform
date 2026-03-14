@@ -34,7 +34,15 @@ class _OtpScreenState extends State<OtpScreen> {
     super.didChangeDependencies();
     _authSub ??= context.read<AuthBloc>().stream.listen((state) {
       if (!mounted) return;
-      if (state is AuthError) {
+      if (state is AuthOtpSent && state.otp != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Your OTP code: ${state.otp}'),
+            duration: const Duration(seconds: 10),
+            backgroundColor: Colors.green.shade700,
+          ),
+        );
+      } else if (state is AuthError) {
         setState(() {
           _isLoading = false;
           _errorMessage = state.message;

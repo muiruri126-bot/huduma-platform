@@ -32,6 +32,15 @@ class _AuthFlowScreenState extends State<AuthFlowScreen> {
           _phone = state.phone;
           _page = AuthPage.otp;
         });
+        if (state.otp != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Your OTP code: ${state.otp}'),
+              duration: const Duration(seconds: 15),
+              backgroundColor: Colors.green.shade700,
+            ),
+          );
+        }
       }
     });
   }
