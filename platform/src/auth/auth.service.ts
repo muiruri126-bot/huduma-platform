@@ -1,8 +1,9 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { randomInt } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { SmsService } from '../sms/sms.service';
 import { RequestOtpDto, VerifyOtpDto } from './dto/auth.dto';
 
 @Injectable()
@@ -10,32 +11,63 @@ export class AuthService {
   // In-memory OTP store for development. In production, use Redis with TTL.
   private otpStore = new Map<string, { otp: string; expiresAt: number }>();
 
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private smsService: SmsService,
   ) {}
 
   async requestOtp(dto: RequestOtpDto) {
-    const otp = this.generateOtp();
-    const expirySeconds = this.config.get<number>('OTP_EXPIRY_SECONDS', 300);
-
-    this.otpStore.set(dto.phone, {
-      otp,
-      expiresAt: Date.now() + expirySeconds * 1000,
+    // Direct login — OTP skipped for development
+    // Find or create user
+    let user = await this.prisma.user.findUnique({
+      where: { phone: dto.phone },
     });
 
-    console.log(`\n========================================`);
-    console.log(`  OTP for ${dto.phone}: ${otp}`);
-    console.log(`========================================\n`);
+    let isNewUser = false;
 
-    // TODO: Integrate Africa's Talking SMS service for real SMS delivery
-    // await this.smsService.send(dto.phone, `Your Huduma verification code is: ${otp}`);
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          phone: dto.phone,
+          status: 'pending_profile',
+          isVerified: false,
+        },
+      });
+      isNewUser = true;
+
+      await this.prisma.verification.create({
+        data: {
+          userId: user.id,
+          type: 'phone',
+          status: 'verified',
+          verifiedAt: new Date(),
+        },
+      });
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+
+    const tokens = await this.generateTokens(user.id, user.phone);
+
+    const fullUser = await this.prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        profile: { include: { location: true } },
+        roles: { select: { roleType: true, category: { select: { id: true, name: true, slug: true } } } },
+      },
+    });
 
     return {
-      message: 'OTP sent successfully',
-      expiresIn: expirySeconds,
-      otp, // Returned until SMS provider is integrated
+      ...tokens,
+      isNewUser,
+      user: fullUser,
     };
   }
 

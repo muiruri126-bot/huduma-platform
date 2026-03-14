@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { SmsService } from '../sms/sms.service';
 import { NotificationType } from '@prisma/client';
 import * as admin from 'firebase-admin';
 
@@ -11,6 +12,7 @@ export class NotificationsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
+    private smsService: SmsService,
   ) {}
 
   onModuleInit() {
@@ -181,13 +183,21 @@ export class NotificationsService implements OnModuleInit {
   }
 
   private async sendSms(userId: string, message: string) {
-    // TODO: Integrate Africa's Talking SMS API
-    // 1. Look up user's phone number
-    // 2. Send via Africa's Talking SDK
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { phone: true },
     });
-    console.log(`[SMS] To ${user?.phone}: ${message}`);
+
+    if (!user?.phone) {
+      this.logger.warn(`No phone number for user ${userId}, skipping SMS`);
+      return;
+    }
+
+    const result = await this.smsService.send(user.phone, message);
+    if (result.success) {
+      this.logger.debug(`SMS sent to user ${userId}`);
+    } else {
+      this.logger.warn(`SMS failed for user ${userId}: ${result.error}`);
+    }
   }
 }
