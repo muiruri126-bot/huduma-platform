@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Delete, Param, Query, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { NotificationsService } from './notifications.service';
 import { CurrentUser } from '../common/decorators';
@@ -7,6 +7,19 @@ import { CurrentUser } from '../common/decorators';
 @UseGuards(AuthGuard('jwt'))
 export class NotificationsController {
   constructor(private notificationsService: NotificationsService) {}
+
+  @Post('fcm-token')
+  registerFcmToken(
+    @CurrentUser('id') userId: string,
+    @Body('fcmToken') fcmToken: string,
+  ) {
+    return this.notificationsService.registerFcmToken(userId, fcmToken);
+  }
+
+  @Delete('fcm-token')
+  removeFcmToken(@CurrentUser('id') userId: string) {
+    return this.notificationsService.removeFcmToken(userId);
+  }
 
   @Get()
   getNotifications(

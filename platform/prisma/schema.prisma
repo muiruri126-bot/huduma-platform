@@ -131,6 +131,21 @@ enum NotificationType {
   in_app
 }
 
+enum PaymentStatus {
+  pending
+  processing
+  completed
+  failed
+  refunded
+  cancelled
+}
+
+enum PaymentMethod {
+  mpesa_stk
+  mpesa_paybill
+  mpesa_till
+}
+
 // ─── MODELS ─────────────────────────────────────────────────────────────────
 
 model User {
@@ -143,6 +158,7 @@ model User {
   createdAt     DateTime   @default(now()) @map("created_at")
   updatedAt     DateTime   @updatedAt @map("updated_at")
   lastLoginAt   DateTime?  @map("last_login_at")
+  fcmToken      String?    @map("fcm_token") @db.VarChar(500)
 
   // Relations
   profile                Profile?
@@ -160,6 +176,7 @@ model User {
   notifications          Notification[]
   verificationsProcessed Verification[]         @relation("VerifiedByRelation")
   reportsResolved        Report[]               @relation("ResolvedByRelation")
+  payments              Payment[]
 
   @@map("users")
 }
@@ -311,6 +328,7 @@ model Listing {
   applications  Application[]
   reviews       Review[]
   conversations Conversation[]
+  payments      Payment[]
 
   @@index([categoryId, status, createdAt(sort: Desc)])
   @@index([userId])
@@ -462,4 +480,34 @@ model Notification {
 
   @@index([userId, isRead])
   @@map("notifications")
+}
+
+model Payment {
+  id                String        @id @default(uuid()) @db.Uuid
+  userId            String        @map("user_id") @db.Uuid
+  amount            Decimal       @db.Decimal(10, 2)
+  currency          String        @default("KES") @db.VarChar(3)
+  method            PaymentMethod
+  status            PaymentStatus @default(pending)
+  description       String?       @db.VarChar(500)
+  merchantRequestId String?       @unique @map("merchant_request_id") @db.VarChar(100)
+  checkoutRequestId String?       @unique @map("checkout_request_id") @db.VarChar(100)
+  mpesaReceiptNumber String?      @unique @map("mpesa_receipt_number") @db.VarChar(50)
+  phoneNumber       String        @map("phone_number") @db.VarChar(20)
+  resultCode        Int?          @map("result_code")
+  resultDesc        String?       @map("result_desc") @db.Text
+  listingId         String?       @map("listing_id") @db.Uuid
+  metadata          Json?         @db.JsonB
+  paidAt            DateTime?     @map("paid_at")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([checkoutRequestId])
+  @@map("payments")
 }

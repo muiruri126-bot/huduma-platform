@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Huduma Admin Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    /* Login */
+    .login-overlay { position: fixed; inset: 0; background: #1a1a2e; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .login-box { background: #fff; padding: 2.5rem; border-radius: 12px; width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,.15); }
+    .login-box h2 { margin-bottom: 1.5rem; text-align: center; color: #1a1a2e; }
+    .login-box input { width: 100%; padding: .75rem; margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: .95rem; }
+    .login-box button { width: 100%; padding: .75rem; background: #e94560; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; }
+    .login-box button:hover { background: #c73852; }
+    .login-error { color: #e94560; text-align: center; margin-bottom: .75rem; font-size: .875rem; }
+
+    /* Layout */
+    .app { display: none; }
+    .sidebar { width: 240px; background: #1a1a2e; color: #fff; position: fixed; top: 0; left: 0; bottom: 0; padding: 1.5rem 0; overflow-y: auto; }
+    .sidebar h1 { font-size: 1.2rem; padding: 0 1.5rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .sidebar h1 span { color: #e94560; }
+    .nav-item { display: block; padding: .85rem 1.5rem; color: rgba(255,255,255,.7); text-decoration: none; cursor: pointer; transition: .2s; font-size: .9rem; }
+    .nav-item:hover, .nav-item.active { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-item.active { border-left: 3px solid #e94560; }
+    .main { margin-left: 240px; padding: 2rem; min-height: 100vh; }
+
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .header h2 { font-size: 1.5rem; }
+    .btn-logout { background: none; border: 1px solid #e94560; color: #e94560; padding: .5rem 1.25rem; border-radius: 6px; cursor: pointer; font-size: .85rem; }
+    .btn-logout:hover { background: #e94560; color: #fff; }
+
+    /* Cards grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+    .stat-card { background: #fff; padding: 1.5rem; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .stat-card .label { font-size: .8rem; color: #888; text-transform: uppercase; letter-spacing: .5px; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; margin-top: .25rem; }
+
+    /* Tables */
+    .panel { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .panel h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: .75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-size: .8rem; text-transform: uppercase; color: #888; letter-spacing: .5px; }
+    .badge { display: inline-block; padding: .2rem .6rem; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+    .badge-green { background: #e6f9f0; color: #0d7a40; }
+    .badge-yellow { background: #fff8e6; color: #b38600; }
+    .badge-red { background: #fde8ec; color: #c0392b; }
+    .badge-blue { background: #e8f0fe; color: #1a73e8; }
+    .badge-gray { background: #f0f0f0; color: #666; }
+
+    /* Action buttons */
+    .btn-sm { padding: .3rem .75rem; font-size: .8rem; border: none; border-radius: 5px; cursor: pointer; }
+    .btn-approve { background: #0d7a40; color: #fff; }
+    .btn-reject { background: #c0392b; color: #fff; }
+    .btn-view { background: #1a73e8; color: #fff; }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: .5rem; margin-top: 1rem; }
+    .pagination button { padding: .4rem .9rem; border: 1px solid #ddd; background: #fff; border-radius: 5px; cursor: pointer; }
+    .pagination button.active { background: #e94560; color: #fff; border-color: #e94560; }
+    .pagination button:disabled { opacity: .4; cursor: default; }
+
+    /* Loading */
+    .loading { text-align: center; padding: 3rem; color: #888; }
+
+    /* Hidden */
+    .hidden { display: none !important; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { width: 60px; }
+      .sidebar h1, .nav-item span { display: none; }
+      .main { margin-left: 60px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h2>Huduma <span style="color:#e94560">Admin</span></h2>
+    <div class="login-error hidden" id="loginError"></div>
+    <input type="text" id="loginPhone" placeholder="Phone (e.g. 254700000000)">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- App -->
+<div class="app" id="app">
+  <aside class="sidebar">
+    <h1>Huduma <span>Admin</span></h1>
+    <a class="nav-item active" data-page="dashboard">Dashboard</a>
+    <a class="nav-item" data-page="users">Users</a>
+    <a class="nav-item" data-page="listings">Listings</a>
+    <a class="nav-item" data-page="verifications">Verifications</a>
+    <a class="nav-item" data-page="reports">Reports</a>
+    <a class="nav-item" data-page="categories">Categories</a>
+    <a class="nav-item" data-page="payments">Payments</a>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h2 id="pageTitle">Dashboard</h2>
+      <button class="btn-logout" onclick="doLogout()">Logout</button>
+    </div>
+    <div id="pageContent"><div class="loading">Loading...</div></div>
+  </main>
+</div>
+
+<script>
+const API = window.location.origin + '/api/v1';
+let token = localStorage.getItem('admin_token') || '';
+
+// ── Auth ──
+async function doLogin() {
+  const phone = document.getElementById('loginPhone').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.classList.add('hidden');
+
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Login failed');
+    token = data.accessToken || data.access_token || data.token;
+    localStorage.setItem('admin_token', token);
+    showApp();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+  }
+}
+
+function doLogout() {
+  token = '';
+  localStorage.removeItem('admin_token');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginOverlay').style.display = 'flex';
+}
+
+function showApp() {
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadPage('dashboard');
+}
+
+async function apiFetch(path) {
+  const res = await fetch(`${API}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 401) { doLogout(); throw new Error('Session expired'); }
+  return res.json();
+}
+
+async function apiAction(path, method, body) {
+  const res = await fetch(`${API}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  if (res.status === 401) { doLogout(); throw new Error('Session expired'); }
+  return res.json();
+}
+
+// ── Navigation ──
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    loadPage(el.dataset.page);
+  });
+});
+
+function loadPage(page) {
+  document.getElementById('pageTitle').textContent = page.charAt(0).toUpperCase() + page.slice(1);
+  const c = document.getElementById('pageContent');
+  c.innerHTML = '<div class="loading">Loading...</div>';
+
+  switch (page) {
+    case 'dashboard': loadDashboard(c); break;
+    case 'users': loadUsers(c); break;
+    case 'listings': loadListings(c); break;
+    case 'verifications': loadVerifications(c); break;
+    case 'reports': loadReports(c); break;
+    case 'categories': loadCategories(c); break;
+    case 'payments': loadPayments(c); break;
+  }
+}
+
+function badge(status) {
+  const map = {
+    active: 'green', completed: 'green', approved: 'green',
+    pending: 'yellow', pending_profile: 'yellow', investigating: 'yellow', processing: 'yellow',
+    suspended: 'red', rejected: 'red', failed: 'red', cancelled: 'red', closed: 'red',
+    draft: 'gray', expired: 'gray', refunded: 'blue',
+  };
+  return `<span class="badge badge-${map[status] || 'gray'}">${status}</span>`;
+}
+
+function dateFmt(d) { return d ? new Date(d).toLocaleDateString('en-KE', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'; }
+
+// ── Dashboard ──
+async function loadDashboard(c) {
+  const d = await apiFetch('/admin/dashboard');
+  c.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="label">Total Users</div><div class="value">${d.totalUsers}</div></div>
+      <div class="stat-card"><div class="label">Active Users</div><div class="value">${d.activeUsers}</div></div>
+      <div class="stat-card"><div class="label">New (30d)</div><div class="value">${d.newUsersLast30Days}</div></div>
+      <div class="stat-card"><div class="label">Total Listings</div><div class="value">${d.totalListings}</div></div>
+      <div class="stat-card"><div class="label">Active Listings</div><div class="value">${d.activeListings}</div></div>
+      <div class="stat-card"><div class="label">Applications</div><div class="value">${d.totalApplications}</div></div>
+      <div class="stat-card"><div class="label">Reviews</div><div class="value">${d.totalReviews}</div></div>
+      <div class="stat-card"><div class="label">Pending Verifications</div><div class="value" style="color:#b38600">${d.pendingVerifications}</div></div>
+      <div class="stat-card"><div class="label">Pending Reports</div><div class="value" style="color:#c0392b">${d.pendingReports}</div></div>
+    </div>`;
+}
+
+// ── Users ──
+async function loadUsers(c, page = 1) {
+  const d = await apiFetch(`/admin/users?page=${page}&limit=15`);
+  c.innerHTML = `
+    <div class="panel">
+      <table>
+        <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Status</th><th>Rating</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody>${d.data.map(u => `
+          <tr>
+            <td>${u.profile?.displayName || '—'}</td>
+            <td>${u.phone}</td>
+            <td>${u.email || '—'}</td>
+            <td>${badge(u.status)}</td>
+            <td>${u.profile?.averageRating || '—'} (${u.profile?.totalReviews || 0})</td>
+            <td>${dateFmt(u.createdAt)}</td>
+            <td>
+              ${u.status === 'suspended' ? `<button class="btn-sm btn-approve" onclick="setUserStatus('${u.id}','active')">Activate</button>` : ''}
+              ${u.status === 'active' ? `<button class="btn-sm btn-reject" onclick="setUserStatus('${u.id}','suspended')">Suspend</button>` : ''}
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      ${paginationHtml(d.meta, 'loadUsers(document.getElementById("pageContent"),')}
+    </div>`;
+}
+
+async function setUserStatus(id, status) {
+  await apiAction(`/admin/users/${id}/status`, 'PUT', { status });
+  loadPage('users');
+}
+
+// ── Listings ──
+async function loadListings(c, page = 1) {
+  const d = await apiFetch(`/admin/listings?page=${page}&limit=15`);
+  c.innerHTML = `
+    <div class="panel">
+      <table>
+        <thead><tr><th>Title</th><th>Category</th><th>User</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+        <tbody>${d.data.map(l => `
+          <tr>
+            <td>${esc(l.title)}</td>
+            <td>${l.category?.name || '—'}</td>
+            <td>${l.user?.profile?.displayName || l.user?.phone || '—'}</td>
+            <td>${badge(l.status)}</td>
+            <td>${dateFmt(l.createdAt)}</td>
+            <td>
+              ${l.status !== 'active' ? `<button class="btn-sm btn-approve" onclick="setListingStatus('${l.id}','active')">Approve</button>` : ''}
+              ${l.status !== 'closed' ? `<button class="btn-sm btn-reject" onclick="setListingStatus('${l.id}','closed')">Close</button>` : ''}
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      ${paginationHtml(d.meta, 'loadListings(document.getElementById("pageContent"),')}
+    </div>`;
+}
+
+async function setListingStatus(id, status) {
+  await apiAction(`/admin/listings/${id}/status`, 'PUT', { status });
+  loadPage('listings');
+}
+
+// ── Verifications ──
+async function loadVerifications(c, page = 1) {
+  const d = await apiFetch(`/admin/verifications?page=${page}&limit=15`);
+  c.innerHTML = `
+    <div class="panel">
+      <h3>Pending Verifications</h3>
+      <table>
+        <thead><tr><th>User</th><th>Phone</th><th>Type</th><th>Submitted</th></tr></thead>
+        <tbody>${d.data.map(v => `
+          <tr>
+            <td>${v.user?.profile?.displayName || v.user?.profile?.firstName + ' ' + v.user?.profile?.lastName || '—'}</td>
+            <td>${v.user?.phone || '—'}</td>
+            <td>${v.type || '—'}</td>
+            <td>${dateFmt(v.createdAt)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      ${d.data.length === 0 ? '<p style="padding:1rem;color:#888">No pending verifications</p>' : ''}
+      ${paginationHtml(d.meta, 'loadVerifications(document.getElementById("pageContent"),')}
+    </div>`;
+}
+
+// ── Reports ──
+async function loadReports(c, page = 1) {
+  const d = await apiFetch(`/admin/reports?page=${page}&limit=15`);
+  c.innerHTML = `
+    <div class="panel">
+      <h3>Pending Reports</h3>
+      <table>
+        <thead><tr><th>Reporter</th><th>Reported User</th><th>Reason</th><th>Status</th><th>Created</th></tr></thead>
+        <tbody>${d.data.map(r => `
+          <tr>
+            <td>${r.reporter?.profile?.displayName || '—'}</td>
+            <td>${r.reportedUser?.profile?.displayName || '—'}</td>
+            <td>${esc(r.reason || '—')}</td>
+            <td>${badge(r.status)}</td>
+            <td>${dateFmt(r.createdAt)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      ${d.data.length === 0 ? '<p style="padding:1rem;color:#888">No pending reports</p>' : ''}
+      ${paginationHtml(d.meta, 'loadReports(document.getElementById("pageContent"),')}
+    </div>`;
+}
+
+// ── Categories ──
+async function loadCategories(c) {
+  const d = await apiFetch('/categories');
+  const cats = Array.isArray(d) ? d : (d.data || []);
+  c.innerHTML = `
+    <div class="panel">
+      <table>
+        <thead><tr><th>Name</th><th>Slug</th><th>Type</th><th>Active</th><th>Sort</th></tr></thead>
+        <tbody>${cats.map(cat => `
+          <tr>
+            <td>${esc(cat.name)}</td>
+            <td>${esc(cat.slug)}</td>
+            <td>${cat.listingType || '—'}</td>
+            <td>${cat.isActive !== false ? badge('active') : badge('closed')}</td>
+            <td>${cat.sortOrder ?? 0}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ── Payments ──
+async function loadPayments(c, page = 1) {
+  try {
+    const d = await apiFetch(`/payments?page=${page}&limit=15`);
+    const payments = d.data || [];
+    c.innerHTML = `
+      <div class="panel">
+        <table>
+          <thead><tr><th>Phone</th><th>Amount</th><th>Method</th><th>Status</th><th>Receipt</th><th>Date</th></tr></thead>
+          <tbody>${payments.map(p => `
+            <tr>
+              <td>${esc(p.phoneNumber)}</td>
+              <td>KES ${Number(p.amount).toLocaleString()}</td>
+              <td>${p.method}</td>
+              <td>${badge(p.status)}</td>
+              <td>${p.mpesaReceiptNumber || '—'}</td>
+              <td>${dateFmt(p.createdAt)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        ${payments.length === 0 ? '<p style="padding:1rem;color:#888">No payments yet</p>' : ''}
+      </div>`;
+  } catch {
+    c.innerHTML = '<div class="panel"><p style="color:#888">Payments endpoint not available</p></div>';
+  }
+}
+
+// ── Helpers ──
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function paginationHtml(meta, fnPrefix) {
+  if (!meta || meta.totalPages <= 1) return '';
+  let html = '<div class="pagination">';
+  html += `<button ${meta.page <= 1 ? 'disabled' : ''} onclick="${fnPrefix}${meta.page - 1})">Prev</button>`;
+  for (let i = 1; i <= Math.min(meta.totalPages, 5); i++) {
+    html += `<button class="${i === meta.page ? 'active' : ''}" onclick="${fnPrefix}${i})">${i}</button>`;
+  }
+  html += `<button ${meta.page >= meta.totalPages ? 'disabled' : ''} onclick="${fnPrefix}${meta.page + 1})">Next</button>`;
+  html += '</div>';
+  return html;
+}
+
+// ── Init ──
+if (token) {
+  apiFetch('/admin/dashboard').then(() => showApp()).catch(() => {
+    token = '';
+    localStorage.removeItem('admin_token');
+  });
+} else {
+  document.getElementById('loginOverlay').style.display = 'flex';
+}
+</script>
+</body>
+</html>

@@ -1,10 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationType } from '@prisma/client';
+import * as admin from 'firebase-admin';
 
 @Injectable()
-export class NotificationsService {
-  constructor(private prisma: PrismaService) {}
+export class NotificationsService implements OnModuleInit {
+  private readonly logger = new Logger(NotificationsService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService,
+  ) {}
+
+  onModuleInit() {
+    const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
+    const clientEmail = this.configService.get<string>('FIREBASE_CLIENT_EMAIL');
+    const privateKey = this.configService.get<string>('FIREBASE_PRIVATE_KEY');
+
+    if (projectId && clientEmail && privateKey) {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId,
+          clientEmail,
+          privateKey: privateKey.replace(/\\n/g, '\n'),
+        }),
+      });
+      this.logger.log('Firebase Admin SDK initialized');
+    } else {
+      this.logger.warn('Firebase credentials not configured — push notifications disabled');
+    }
+  }
 
   async send(
     userId: string,
@@ -89,10 +115,69 @@ export class NotificationsService {
     body: string,
     data?: Record<string, any>,
   ) {
-    // TODO: Integrate Firebase Cloud Messaging
-    // 1. Look up user's FCM token from a device_tokens table
-    // 2. Send push via firebase-admin SDK
-    console.log(`[PUSH] To ${userId}: ${title} - ${body}`);
+    if (!admin.apps.length) {
+      this.logger.warn('Firebase not initialized, skipping push');
+      return;
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { fcmToken: true },
+    });
+
+    if (!user?.fcmToken) {
+      this.logger.debug(`No FCM token for user ${userId}`);
+      return;
+    }
+
+    try {
+      await admin.messaging().send({
+        token: user.fcmToken,
+        notification: { title, body },
+        data: data
+          ? Object.fromEntries(
+              Object.entries(data).map(([k, v]) => [k, String(v)]),
+            )
+          : undefined,
+        android: {
+          priority: 'high',
+          notification: { sound: 'default', channelId: 'huduma_default' },
+        },
+        apns: {
+          payload: { aps: { sound: 'default', badge: 1 } },
+        },
+      });
+      this.logger.debug(`Push sent to user ${userId}`);
+    } catch (error: any) {
+      if (
+        error.code === 'messaging/registration-token-not-registered' ||
+        error.code === 'messaging/invalid-registration-token'
+      ) {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: { fcmToken: null },
+        });
+        this.logger.warn(`Cleared invalid FCM token for user ${userId}`);
+      } else {
+        this.logger.error(`Push failed for user ${userId}: ${error.message}`);
+      }
+    }
+  }
+
+  async registerFcmToken(userId: string, fcmToken: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { fcmToken },
+    });
+    return { message: 'FCM token registered' };
+  }
+
+  async removeFcmToken(userId: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { fcmToken: null },
+    });
+    return { message: 'FCM token removed' };
   }
 
   private async sendSms(userId: string, message: string) {

@@ -1,18 +1,17 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { randomUUID } from 'crypto';
-import * as path from 'path';
-import * as fs from 'fs';
 import { UploadType } from './dto/upload.dto';
 
 @Injectable()
 export class UploadService {
-  private readonly uploadDir: string;
-
-  constructor() {
-    this.uploadDir = process.env.UPLOAD_DIR || './uploads';
-    if (!fs.existsSync(this.uploadDir)) {
-      fs.mkdirSync(this.uploadDir, { recursive: true });
-    }
+  constructor(private config: ConfigService) {
+    cloudinary.config({
+      cloud_name: this.config.get('CLOUDINARY_CLOUD_NAME'),
+      api_key: this.config.get('CLOUDINARY_API_KEY'),
+      api_secret: this.config.get('CLOUDINARY_API_SECRET'),
+    });
   }
 
   private readonly allowedImageTypes = [
@@ -37,29 +36,29 @@ export class UploadService {
   ): Promise<{ url: string; key: string }> {
     this.validateFile(file, type);
 
-    const ext = path.extname(file.originalname);
-    const key = `${type}/${userId}/${randomUUID()}${ext}`;
-    const filePath = path.join(this.uploadDir, key);
+    const publicId = `huduma/${type}/${userId}/${randomUUID()}`;
 
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
+    const result: UploadApiResponse = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          {
+            public_id: publicId,
+            resource_type: type === UploadType.VERIFICATION_DOC ? 'raw' : 'image',
+            folder: undefined,
+          },
+          (error, result) => {
+            if (error || !result) return reject(error || new Error('Upload failed'));
+            resolve(result);
+          },
+        )
+        .end(file.buffer);
+    });
 
-    fs.writeFileSync(filePath, file.buffer);
-
-    // In production, replace with S3 upload:
-    // const s3Url = await this.uploadToS3(file.buffer, key, file.mimetype);
-    const url = `/uploads/${key}`;
-
-    return { url, key };
+    return { url: result.secure_url, key: result.public_id };
   }
 
   async deleteFile(key: string): Promise<void> {
-    const filePath = path.join(this.uploadDir, key);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
+    await cloudinary.uploader.destroy(key).catch(() => {});
   }
 
   private validateFile(file: Express.Multer.File, type: UploadType) {
@@ -79,25 +78,4 @@ export class UploadService {
       );
     }
   }
-
-  // S3 upload stub for production usage
-  // private async uploadToS3(buffer: Buffer, key: string, contentType: string) {
-  //   const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
-  //   const client = new S3Client({
-  //     endpoint: process.env.S3_ENDPOINT,
-  //     region: process.env.S3_REGION,
-  //     credentials: {
-  //       accessKeyId: process.env.S3_ACCESS_KEY,
-  //       secretAccessKey: process.env.S3_SECRET_KEY,
-  //     },
-  //   });
-  //   await client.send(new PutObjectCommand({
-  //     Bucket: process.env.S3_BUCKET,
-  //     Key: key,
-  //     Body: buffer,
-  //     ContentType: contentType,
-  //     ACL: 'public-read',
-  //   }));
-  //   return `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`;
-  // }
 }

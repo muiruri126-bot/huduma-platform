@@ -1,5 +1,7 @@
 import { Module, Controller, Get } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -14,6 +16,7 @@ import { VerificationModule } from './verification/verification.module';
 import { ReportsModule } from './reports/reports.module';
 import { UploadModule } from './upload/upload.module';
 import { AdminModule } from './admin/admin.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Controller()
 class HealthController {
@@ -26,6 +29,11 @@ class HealthController {
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/admin',
+      serveStaticOptions: { index: ['index.html'] },
+    }),
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -40,6 +48,7 @@ class HealthController {
     ReportsModule,
     UploadModule,
     AdminModule,
+    PaymentsModule,
   ],
   controllers: [HealthController],
 })
