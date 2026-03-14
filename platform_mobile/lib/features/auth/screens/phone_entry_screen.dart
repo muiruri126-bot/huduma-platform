@@ -81,7 +81,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'We\'ll send you a verification code via SMS',
+                  'We\'ll sign you in with your phone number',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: AppColors.textSecondary,
                       ),

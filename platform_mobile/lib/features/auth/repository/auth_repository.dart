@@ -11,21 +11,9 @@ class AuthRepository {
 
   AuthRepository(this._api, this._storage);
 
-  Future<String?> requestOtp(String phone) async {
+  Future<User> loginWithPhone(String phone) async {
     try {
       final response = await _api.dio.post(ApiConstants.requestOtp, data: {'phone': phone});
-      return response.data?['otp']?.toString();
-    } on DioException catch (e) {
-      throw ApiException.fromDioError(e);
-    }
-  }
-
-  Future<User> verifyOtp(String phone, String otp) async {
-    try {
-      final response = await _api.dio.post(
-        ApiConstants.verifyOtp,
-        data: {'phone': phone, 'otp': otp},
-      );
 
       final data = response.data;
       await _storage.write(key: 'access_token', value: data['accessToken']);

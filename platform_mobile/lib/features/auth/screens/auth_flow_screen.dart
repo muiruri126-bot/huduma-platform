@@ -4,12 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:platform_mobile/features/auth/bloc/auth_bloc.dart';
 import 'package:platform_mobile/features/auth/screens/onboarding_screen.dart';
 import 'package:platform_mobile/features/auth/screens/phone_entry_screen.dart';
-import 'package:platform_mobile/features/auth/screens/otp_screen.dart';
 
-enum AuthPage { onboarding, phone, otp }
+enum AuthPage { onboarding, phone }
 
 /// Manages the auth flow locally without GoRouter.
-/// Switches between onboarding → phone → otp using simple setState.
+/// Switches between onboarding → phone using simple setState.
 class AuthFlowScreen extends StatefulWidget {
   const AuthFlowScreen({super.key});
 
@@ -19,48 +18,11 @@ class AuthFlowScreen extends StatefulWidget {
 
 class _AuthFlowScreenState extends State<AuthFlowScreen> {
   AuthPage _page = AuthPage.onboarding;
-  String _phone = '';
-  StreamSubscription<AuthState>? _authSub;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _authSub ??= context.read<AuthBloc>().stream.listen((state) {
-      if (!mounted) return;
-      if (state is AuthOtpSent) {
-        setState(() {
-          _phone = state.phone;
-          _page = AuthPage.otp;
-        });
-        if (state.otp != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Your OTP code: ${state.otp}'),
-              duration: const Duration(seconds: 15),
-              backgroundColor: Colors.green.shade700,
-            ),
-          );
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _authSub?.cancel();
-    super.dispose();
-  }
 
   void _goToPhone() => setState(() => _page = AuthPage.phone);
 
   void _goBack() {
-    setState(() {
-      if (_page == AuthPage.otp) {
-        _page = AuthPage.phone;
-      } else {
-        _page = AuthPage.onboarding;
-      }
-    });
+    setState(() => _page = AuthPage.onboarding);
   }
 
   @override
@@ -74,11 +36,6 @@ class _AuthFlowScreenState extends State<AuthFlowScreen> {
           ),
         AuthPage.phone => PhoneEntryScreen(
             key: const ValueKey('phone'),
-            onBack: _goBack,
-          ),
-        AuthPage.otp => OtpScreen(
-            key: const ValueKey('otp'),
-            phone: _phone,
             onBack: _goBack,
           ),
       },

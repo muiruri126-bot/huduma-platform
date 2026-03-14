@@ -64,7 +64,7 @@ class _PlatformAppState extends State<PlatformApp> {
             );
           }
 
-          // AuthUnauthenticated, AuthInitial, AuthOtpSent, AuthLoading, AuthError
+          // AuthUnauthenticated, AuthInitial, AuthLoading, AuthError
           return MaterialApp(
             key: const ValueKey('auth'),
             title: 'Huduma Platform',

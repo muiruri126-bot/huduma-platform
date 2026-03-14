@@ -18,14 +18,6 @@ class AuthOtpRequested extends AuthEvent {
   List<Object?> get props => [phone];
 }
 
-class AuthOtpSubmitted extends AuthEvent {
-  final String phone;
-  final String otp;
-  AuthOtpSubmitted({required this.phone, required this.otp});
-  @override
-  List<Object?> get props => [phone, otp];
-}
-
 class AuthLogoutRequested extends AuthEvent {}
 
 // ── States ──
@@ -37,14 +29,6 @@ abstract class AuthState extends Equatable {
 class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
-
-class AuthOtpSent extends AuthState {
-  final String phone;
-  final String? otp;
-  AuthOtpSent(this.phone, {this.otp});
-  @override
-  List<Object?> get props => [phone, otp];
-}
 
 class AuthAuthenticated extends AuthState {
   final User user;
@@ -76,7 +60,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(this._repository) : super(AuthInitial()) {
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthOtpRequested>(_onOtpRequested);
-    on<AuthOtpSubmitted>(_onOtpSubmitted);
     on<AuthLogoutRequested>(_onLogoutRequested);
   }
 
@@ -105,20 +88,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      final otp = await _repository.requestOtp(event.phone);
-      emit(AuthOtpSent(event.phone, otp: otp));
-    } catch (e) {
-      emit(AuthError(e.toString()));
-    }
-  }
-
-  Future<void> _onOtpSubmitted(
-    AuthOtpSubmitted event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    try {
-      final user = await _repository.verifyOtp(event.phone, event.otp);
+      final user = await _repository.loginWithPhone(event.phone);
       if (user.status == 'pending_profile' || !user.hasProfile) {
         emit(AuthNeedsProfile(user));
       } else {
